@@ -1,37 +1,37 @@
 var db = Database(14);
 
 var createCAP2 = (function(){
-    var customer = [];
-    customer[0] = {name:"cid", type:"chr4", nullable:false};
-    customer[1] = {name:"name", type:"chr8", nullable:true};
-    customer[2] = {name:"city", type:"chr8", nullable:true};
-    customer[3] = {name:"discount", type:"int2", nullable:true};
-    db.createTable( "Customer" , customer );
+    var customerTable = [
+        {name:"cid", type:"chr4", nullable:false},
+        {name:"name", type:"chr8", nullable:true},
+        {name:"city", type:"chr8", nullable:true},
+        {name:"discount", type:"int2", nullable:true}];
+    db.createTable( "Customer" , customerTable );
 
-    var agent = [];
-    agent[0] = {name:"aid", type:"chr3", nullable:false};
-    agent[1] = {name:"name", type:"chr8", nullable:true};
-    agent[2] = {name:"city", type:"chr8", nullable:true};
-    agent[3] = {name:"percent", type:"int2", nullable:true};
-    db.createTable( "Agent" , agent );
+    var agentTable = [
+        {name:"aid", type:"chr3", nullable:false},
+        {name:"name", type:"chr8", nullable:true},
+        {name:"city", type:"chr8", nullable:true},
+        {name:"percent", type:"int2", nullable:true}];
+    db.createTable( "Agent" , agent_table );
 
-    var product = [];
-    product[0] = {name:"pid", type:"chr3", nullable:false};
-    product[1] = {name:"name", type:"chr8", nullable:true};
-    product[2] = {name:"city", type:"chr8", nullable:true};
-    product[3] = {name:"quantity", type:"int6", nullable:true};
-    product[4] = {name:"priceUSD", type:"chr6", nullable:true};
-    db.createTable( "Product" , product );
+    var productTable = [
+        {name:"pid", type:"chr3", nullable:false},
+        {name:"name", type:"chr8", nullable:true},
+        {name:"city", type:"chr8", nullable:true},
+        {name:"quantity", type:"int6", nullable:true},
+        {name:"priceUSD", type:"chr6", nullable:true}];
+    db.createTable( "Product" , productTable );
     
-    var order = [];
-    order[0] = {name:"ordno", type:"int4", nullable:false};
-    order[1] = {name:"mon", type:"chr3", nullable:true};
-    order[2] = {name:"cid", type:"chr4", nullable:false};
-    order[3] = {name:"aid", type:"chr3", nullable:false};
-    order[4] = {name:"pid", type:"chr3", nullable:false};
-    order[5] = {name:"qty", type:"int4", nullable:true};
-    order[6] = {name:"dollars", type:"chr6", nullable:true};
-    db.createTable( "Order" , order );
+    var orderTable = [
+        {name:"ordno", type:"int4", nullable:false},
+        {name:"mon", type:"chr3", nullable:true},
+        {name:"cid", type:"chr4", nullable:false},
+        {name:"aid", type:"chr3", nullable:false},
+        {name:"pid", type:"chr3", nullable:false},
+        {name:"qty", type:"int4", nullable:true},
+        {name:"dollars", type:"chr6", nullable:true}];
+    db.createTable( "Order" , orderTable );
 
     
     //begin inserts

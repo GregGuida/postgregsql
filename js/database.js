@@ -66,7 +66,6 @@ function Database ( numberOfBlocks ){
         return result;
 
     };
-
     var hexToInt = function( hex ){
 
         return parseInt(hex, 16);
@@ -378,6 +377,7 @@ function Database ( numberOfBlocks ){
 
     var PGSdelete = function( tableName, cols, where ) {
         //TODO
+
     }
 
     return db;
