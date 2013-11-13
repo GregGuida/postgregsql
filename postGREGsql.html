@@ -1,0 +1,386 @@
+
+<!DOCTYPE HTML> 
+<html> 
+<head> 
+    <title> postGREGsql </title> 
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" /> 
+    <link rel="stylesheet" type="text/css" src="style.css" ></link>
+</head> 
+<body> 
+    <h1> 
+        postGREGsql
+    </h1>   
+    <!-- Storage --> 
+    <section id="storage"> 
+        <h3> 
+            Storage
+            <input type="button" value="Initialize" onclick="init();"> 
+        </h3> 
+        <div> 
+            <p>Block 0</p> 
+ 
+            <pre id="blockHeader"> 
+        0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F</pre> 
+<pre id="block0">00 00: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 70: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 80: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 90: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 A0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 B0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 C0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 D0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 E0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+00 F0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --</pre> 
+        </div> 
+        <div> 
+            <p>Block 1</p> 
+            <pre id="blockHeader"> 
+        0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F</pre> 
+<pre id="block1">01 00: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 70: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 80: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 90: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 A0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 B0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 C0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 D0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 E0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+01 F0: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --</pre> 
+ 
+        </div> 
+    </section> 
+ 
+    <br style="clear:both;"> 
+    <br> 
+    
+    <!-- Query --> 
+    <section id="query"> 
+        <h3>Query</h3> 
+        <div> 
+ 
+            <table> 
+                <tr> 
+                    <!-- Query --> 
+                    <td> 
+                        <table> 
+                            <tr> 
+                                <td class="keyWord"> 
+                                    SELECT
+                                </td> 
+ 
+                                <td> 
+                                    <input type="text" id="txtSelect" name="txtSelect" size="42"> 
+                                </td> 
+                            </tr> 
+                            <tr> 
+                                <td class="keyWord"> 
+                                    FROM
+                                </td> 
+                                <td> 
+ 
+                                    <input type="text" id="txtFrom" name="txtFrom" size="42"> 
+                                </td> 
+                            </tr> 
+                            <tr> 
+                                <td class="keyWord"> 
+                                    WHERE
+                                </td> 
+                                <td> 
+                                    <input type="text" id="txtWhere" name="txtWhere" size="42"> 
+ 
+                                </td> 
+                            </tr>        
+                            <tr> 
+                                <td></td> 
+                                <td> 
+                                    <input type="button" value="Go" onclick="executeQuery();"> 
+                                </td> 
+                            </tr> 
+                        </table>                                
+                    </td> 
+ 
+                    <!-- Results --> 
+                    <td>                
+                        <table> 
+                            <tr> 
+                                <td> 
+                                    Results:
+                                    <br>                            
+                                    <pre id="queryresults">nothing just yet</pre> 
+                                </td> 
+                            </tr> 
+ 
+                        </table> 
+                    </td> 
+                </tr> 
+            </table> 
+        </div> 
+    </section> 
+ 
+ 
+    <!-- Footer --> 
+    <footer id="page_footer"> 
+ 
+        <br> 
+        <p> 
+            <a href="http://validator.w3.org/check?uri=referer">Valid HTML5, really</a> 
+        </p> 
+    </footer> 
+ 
+ 
+    <!--
+            Client-side code down here, per the YSlow advice.
+            (http://developer.yahoo.com/performance/rules.html#js_bottom)
+     --> 
+    <script type="text/javascript"> 
+ 
+    /*    
+       Notes:
+       
+       User data types: 1-byte int and 8-byte char.
+       System data types: user + 2-byte hex                    
+    
+       The frist two bytes = address of SysTables
+       The next two bytes = address of SysCols
+    
+    */
+ 
+    // Global CONSTANTS
+    var STORAGE_SIZE = 512;
+    var SYSTABLES_ID = 0;
+    var SYSCOLS_ID = 1;
+ 
+    // Global variables
+    var nextTableId = SYSCOLS_ID + 1;
+    var database = [];
+    var storageBytes = [];
+ 
+    function init()
+    {
+        resetStorageBytes();
+        refreshStorageDisplay();
+        resetDatabase();
+        initSystemTables();
+        // initUserTables();
+        // alert(database);
+    }
+ 
+    function resetStorageBytes()
+    {
+       // Kill the array.
+       storageBytes.length = 0;
+       // Fill it with 'counting in hex' data.
+       for (var i=0; i < STORAGE_SIZE; i++)
+       {
+          // storageBytes[i] = 00; 
+          var value = i;
+          if (value >= 256)
+          {
+             value = value % 256;
+          }          
+          storageBytes[i] = value.toString(16);
+       }  
+    }
+ 
+    function refreshStorageDisplay()
+    {
+       var block = storageBytes.splice(0, 256);   // splice is destructive to the array...
+       paintData("block0", block, 0);
+       block = storageBytes.splice(0, 256);       // which is why we use the same values again.
+       paintData("block1", block, 256);
+    }
+    
+    function paintData(blockId, blockData, startingAddress)
+    {
+       var str = "";       
+       for (var i=0; i < blockData.length; i++)
+       {
+          var addr = i + startingAddress;
+          // Check to see if we are at the end of a line.
+          if (addr % 16 == 0)
+          {
+             // We are at the end of a line, so add a CR ...
+             if (i > 0)  // ... so long as this is not the first line.
+             {
+                str += "\n";
+             }
+             // ... and show the new address.
+             var temp = padLeftWithZeros(addr.toString(16),4)
+             str += "<strong>" + temp.substr(0,2) + " " + temp.substr(2,2) + ":</strong> ";
+          }
+          // Write the byte at the current address.          
+          str += padLeftWithZeros(blockData[i].toString(16),2) + " ";
+       }
+       // Put the new string in the DOM for display.
+       document.getElementById(blockId).innerHTML = str;
+    }
+ 
+    function padLeftWithZeros(str, totalLength)
+    {
+       var retVal = str;
+       for (var i = retVal.length; i < totalLength; i++)
+       {
+          retVal = "0" + retVal;
+       }
+       return retVal;
+    }
+ 
+    function resetDatabase()
+    {
+       // Kill the global database array.
+       database.length = 0;
+    }
+ 
+ 
+    function initSystemTables()
+    {
+        // -- SysTables --
+        // Construct the table itself.
+        var tblSysTables = new Table();
+        tblSysTables.id = SYSTABLES_ID;
+        tblSysTables.name = "SysTables";
+        // Add the table structure / schema / column definitions.
+        tblSysTables.colDefs.push( new ColumnDef("tid",  "int") );
+        tblSysTables.colDefs.push( new ColumnDef("name", "char") );
+        tblSysTables.colDefs.push( new ColumnDef("addr", "hex") );
+        // Add the actual data.
+        tblSysTables.data.push( [SYSTABLES_ID, "SysTables", -1] );
+        tblSysTables.data.push( [SYSCOLS_ID,   "SysCols", -1] );
+        // Add the table to our database.
+        database.push(tblSysTables);
+ 
+        // -- SysCols --
+        // Construct the table itself.
+        var tblSysCols = new Table();
+        tblSysCols.id = SYSCOLS_ID;
+        tblSysCols.name = "SysCols";
+        // Add the table structure / schema / column definitions.
+        tblSysCols.colDefs.push( new ColumnDef("tid",        "int") );
+        tblSysCols.colDefs.push( new ColumnDef("cid",        "int") );
+        tblSysCols.colDefs.push( new ColumnDef("name",       "char") );
+        tblSysCols.colDefs.push( new ColumnDef("type",       "char") );
+        tblSysCols.colDefs.push( new ColumnDef("isNullable", "int") );
+        // Add the actual data.
+        tblSysCols.data.push( [SYSTABLES_ID, 0, "tid",        "int",  0] );
+        tblSysCols.data.push( [SYSTABLES_ID, 1, "name",       "char", 0] );
+        tblSysCols.data.push( [SYSTABLES_ID, 2, "addr",       "hex",  0] );
+        tblSysCols.data.push( [SYSCOLS_ID,   0, "tid",        "int",  0] );
+        tblSysCols.data.push( [SYSCOLS_ID,   1, "cid",        "int",  0] );
+        tblSysCols.data.push( [SYSCOLS_ID,   2, "name",       "char", 0] );
+        tblSysCols.data.push( [SYSCOLS_ID,   3, "type",       "char", 0] );
+        tblSysCols.data.push( [SYSCOLS_ID,   4, "isNullable", "int",  0] );
+        // Add the table to our database.
+        database.push(tblSysCols);
+    }
+ 
+    function initUserTables()
+    {
+        /*
+        
+        I'm not sure we want to do this.
+        
+        var tblPeople = new Table();
+        tblPeople.id = 2;
+        tblPeople.name = "People";
+        database.push(tblPeople);
+ 
+        var tblShips = new Table();
+        tblShips.id = 3;
+        tblShips.name = "Ships";
+        database.push(tblShips);
+        */
+    }
+ 
+ 
+    function Table()
+    {
+        this.id = -1;
+        this.name = "";
+        this.colDefs = new Array(); // of column definitions
+        this.data = new Array();    // 'tuples' of data
+        this.storageAddress = -1;
+        this.storageBytes = new Array(); // headers + bytes of data + more?
+ 
+        this.toString = function()
+                        {
+                            return "\ntable:" + this.name + " @" + this.storageAddress +
+                                   "\ncol defs:" + this.colDefs +
+                                   "\ndata:" + this.data +
+                                   "\n";
+                        }
+ 
+        this.loadData = function()
+                        {
+                            // Starting from storageAddress,
+                            // Find the starting address for our table.
+                            // While still reading our table...
+                            // - read a row's worth of header + bytes
+                            // - make it a 'tuple'
+                            // - add the tuple to our data array.
+                            return "This should load the data.";
+                        }
+ 
+        this.saveData = function()
+                        {
+                            // Starting from storageAddress,
+                            // for each tuple in our data array,
+                            // - make it a collection of header + bytes
+                            // - write the bytes to the blocks block
+                            return "This should save the data.";
+                        }
+    }
+ 
+    function ColumnDef(name, type)
+    {
+       this.name = name;
+       this.type = type;
+ 
+       this.toString = function()
+                       {
+                          return this.name + " " + this.type;
+                       }
+    }
+ 
+ 
+    // Create Table
+    // 1. Check to see if a table by that name already exists in SysTables.
+    //    - tid = lookupTableInSysTables(newName)
+    // 2. If not (tid < 0) then add the table.
+    //    - newId = getNextTableId()
+    //    - addRowToSysTables(newId, newName)
+    // 3. Add the columns to SysCols
+    //    - ??
+    //    - Initialize the first block of data.
+ 
+    // Drop Table
+    // 1. Check to see if a table by that name exists in SysTables.
+    //    - tid = lookupTableInSysTables(name)
+    // 2. If so, make sure it's not a system table
+    // 3. If that's ok (tid > SYSCOLS_ID) then remove the table
+    //    - removeRowFromSysTables(tid)
+    // 4. ... and it's cols ...
+    //    - removeRowsFromSysCols(tid)
+    // 5. ... and it's data.
+    //    - ??
+ 
+ 
+    function executeQuery()
+    {
+        alert("Well... this is the (second) hard part, isn't it?");
+    }
+    </script> 
+ 
+</body> 
+</html> 
